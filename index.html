@@ -7,25 +7,39 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #000; /* Latar belakang hitam */
-      color: #fff; /* Semua teks menjadi putih */
       margin: 0;
-      padding: 20px;
-      text-align: center;
+      padding: 0;
+      background: url('img/Lrt_palembang.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: -1;
     }
     .container {
       max-width: 800px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 2;
-      background: rgba(0, 0, 0, 0.7); /* Background hitam transparan */
-      padding: 20px;
-      border-radius: 10px;
+      margin: 20px auto;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    }
+    h1, h2 {
+      text-align: center;
     }
     h1 {
+      font-size: 1.8em;
+    }
+    h2 {
+      font-size: 1.2em;
+    }
+    #current-time {
+      text-align: center;
+      font-size: 1.2em;
       margin-bottom: 20px;
-      font-size: 2em;
-      color: #fff; /* Judul tetap putih */
     }
     .widgets {
       display: flex;
@@ -34,37 +48,33 @@
       margin: 20px 0;
     }
     .widget {
-      background: rgba(255, 255, 255, 0.1); /* Background widget semi-transparan */
+      background: rgba(255, 255, 255, 0.2);
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      flex: 1;
       text-align: center;
-      color: #fff; /* Semua teks dalam widget menjadi putih */
-      transition: background 0.3s ease, color 0.3s ease;
+      width: 45%;
+      transition: background-color 0.3s;
     }
-    .widget h2 {
-      margin: 10px 0;
-      color: #fff; /* Judul widget tetap putih */
+    .widget.red {
+      background: rgba(255, 69, 0, 0.8);
     }
-    .widget p {
-      font-size: 2em;
-      color: #fff; /* Angka suhu dan kelembapan juga putih */
+    #last-update {
+      font-size: 0.9em;
+      margin-top: 10px;
     }
     .alert {
       background: rgba(255, 69, 0, 0.8);
-      color: #fff; /* Teks alert tetap putih */
       padding: 10px;
       border-radius: 5px;
       margin: 10px 0;
+      text-align: center;
       display: none;
     }
     .search-container {
       margin-top: 30px;
       padding: 20px;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
     .search-container input,
     .search-container button {
@@ -73,40 +83,49 @@
       margin: 5px;
       border-radius: 5px;
       border: 1px solid #ddd;
-      color: #000; /* Warna teks pada input dan tombol hitam */
+      color: #000;
     }
-    img {
-      max-width: 50%; /* Ukuran gambar diubah menjadi 50% */
-      height: auto;
+    table {
+      width: 100%;
       margin-top: 20px;
+      border-collapse: collapse;
     }
-    #current-time {
-      font-size: 2em;
-      color: #fff; /* Warna waktu tetap putih */
-      margin-top: 20px; /* Memberi jarak antara gambar dan waktu */
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1em;
+      font-weight: bold;
+      color: #eee;
     }
   </style>
 </head>
 <body>
+  <div class="overlay"></div>
   <div class="container">
-    <h1>Monitoring Suhu & Kelembapan<br>Ruang Peralatan Signalling & Communication<br>LRT Sumsel Divre III Palembang</h1>
-    <img src="img/Lrt_palembang.jpg" alt="Logo LRT Sumsel">
+    <h1>MONITORING SUHU & KELEMBAPAN</h1>
+    <h2>RUANG PERALATAN SIGNALLING & COMMUNICATION<br>LRT Sumsel DIVRE III Palembang</h2>
+    <div id="current-time">--:--:--</div>
 
-    <!-- Menampilkan waktu sebagai angka saja -->
-    <div id="current-time"></div> <!-- Tempat untuk menampilkan jam -->
-
-    <div id="alert" class="alert">⚠️ Suhu melebihi 26°C! Harap segera cek kondisi! ⚠️</div>
+    <div id="alert" class="alert">⚠️ Suhu atau kelembapan melebihi batas! Harap segera cek kondisi! ⚠️</div>
 
     <div class="widgets">
       <div class="widget" id="widget-suhu">
         <h2>Suhu</h2>
         <p id="suhu">--</p>
         <p>°C</p>
+        <div id="last-update-suhu">Last update: --</div>
       </div>
       <div class="widget" id="widget-kelembapan">
         <h2>Kelembapan</h2>
         <p id="kelembapan">--</p>
         <p>%</p>
+        <div id="last-update-kelembapan">Last update: --</div>
       </div>
     </div>
 
@@ -114,7 +133,7 @@
       <h2>Pencarian Data</h2>
       <input type="date" id="search-date" placeholder="Pilih tanggal">
       <input type="time" id="search-time" placeholder="Pilih waktu">
-      <button onclick="filterData()">Cari</button>
+      <button onclick="searchData()">Cari</button>
       <table>
         <thead>
           <tr>
@@ -129,94 +148,89 @@
           </tr>
         </tbody>
       </table>
-      <button id="download-btn" style="display:none;">Download Data</button>
     </div>
   </div>
 
-  <script>
-    const apiKey = "S1L16VTO8J421VNA"; // Read API Key dari Thingspeak
-    const channelID = "2784831"; // Channel ID dari Thingspeak
-    let allData = []; // Array untuk menyimpan semua data
+  <footer>Created by: R & P Sig&Com FS1</footer>
 
-    // Fungsi untuk mengambil data terbaru dari Thingspeak
+  <script>
+    const apiKey = "S1L16VTO8J421VNA";
+    const channelID = "2784831";
+    let allData = [];
+
+    // Update waktu real-time
+    function updateTime() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('en-GB');
+      document.getElementById('current-time').textContent = timeString;
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Fetch data dari Thingspeak
     async function fetchData() {
       try {
-        const response = await fetch(`https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${apiKey}&results=100`);
+        const response = await fetch(`https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${apiKey}&results=8000`);
         const data = await response.json();
-
-        // Menambahkan data terbaru ke dalam array allData tanpa menghapus data lama
-        const newData = data.feeds.map(feed => ({
+        allData = data.feeds.map(feed => ({
           time: new Date(feed.created_at),
-          suhu: feed.field1 || "--",
-          kelembapan: feed.field2 || "--",
+          suhu: parseFloat(feed.field1 || 0).toFixed(1),
+          kelembapan: parseFloat(feed.field2 || 0).toFixed(1),
         }));
-
-        // Menambahkan data baru ke allData tanpa menghapus data lama
-        allData = [...allData, ...newData];
-
-        // Update data real-time (data terakhir)
-        const latestData = allData[allData.length - 1];
-        if (latestData) {
-          document.getElementById("suhu").textContent = latestData.suhu;
-          document.getElementById("kelembapan").textContent = latestData.kelembapan;
-
-          // Periksa suhu untuk alarm
-          if (parseFloat(latestData.suhu) > 27) {
-            document.getElementById("alert").style.display = "block";
-            // Ubah warna widget jika suhu > 27°C
-            document.getElementById("widget-suhu").style.background = "rgba(255, 0, 0, 0.8)";
-            document.getElementById("widget-kelembapan").style.background = "rgba(255, 0, 0, 0.8)"; // Warna widget kelembapan disamakan
-            document.getElementById("widget-suhu").style.color = "#fff";
-            document.getElementById("widget-kelembapan").style.color = "#fff";
-            document.getElementById("suhu").style.color = "#fff";
-            document.getElementById("kelembapan").style.color = "#fff";
-          } else {
-            document.getElementById("alert").style.display = "none";
-            // Kembalikan warna widget
-            document.getElementById("widget-suhu").style.background = "rgba(255, 255, 255, 0.2)";
-            document.getElementById("widget-kelembapan").style.background = "rgba(255, 255, 255, 0.2)"; // Warna widget kelembapan disamakan
-            document.getElementById("widget-suhu").style.color = "#fff";
-            document.getElementById("widget-kelembapan").style.color = "#fff";
-            document.getElementById("suhu").style.color = "#fff";
-            document.getElementById("kelembapan").style.color = "#fff";
-          }
-        }
+        updateWidgets();
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     }
 
-    // Fungsi untuk menampilkan waktu sebagai angka
-    function updateTime() {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      const timeString = `${hours}:${minutes}:${seconds}`;
-      document.getElementById('current-time').textContent = `${timeString}`; // Hanya menampilkan waktu
+    // Update widget dengan data terbaru
+    function updateWidgets() {
+      const latestData = allData[allData.length - 1];
+      if (latestData) {
+        document.getElementById("suhu").textContent = latestData.suhu;
+        document.getElementById("kelembapan").textContent = latestData.kelembapan;
+        document.getElementById("last-update-suhu").textContent = `Last update: ${latestData.time.toLocaleString()}`;
+        document.getElementById("last-update-kelembapan").textContent = `Last update: ${latestData.time.toLocaleString()}`;
+
+        const alertEl = document.getElementById("alert");
+        const widgetSuhu = document.getElementById("widget-suhu");
+        const widgetKelembapan = document.getElementById("widget-kelembapan");
+
+        let alertVisible = false;
+
+        if (parseFloat(latestData.suhu) > 25) {
+          widgetSuhu.classList.add("red");
+          alertVisible = true;
+        } else {
+          widgetSuhu.classList.remove("red");
+        }
+
+        if (parseFloat(latestData.kelembapan) > 56) {
+          widgetKelembapan.classList.add("red");
+          alertVisible = true;
+        } else {
+          widgetKelembapan.classList.remove("red");
+        }
+
+        alertEl.style.display = alertVisible ? "block" : "none";
+      }
     }
 
-    // Update jam setiap detik
-    setInterval(updateTime, 1000); // Memperbarui waktu setiap 1 detik
-    updateTime(); // Inisialisasi tampilan waktu
-
-    // Fungsi untuk memfilter data berdasarkan waktu dan tanggal
-    function filterData() {
+    // Pencarian data berdasarkan tanggal dan waktu
+    function searchData() {
       const searchDate = document.getElementById("search-date").value;
       const searchTime = document.getElementById("search-time").value;
 
-      // Memfilter data yang sesuai dengan tanggal dan waktu yang dimasukkan
       const filteredData = allData.filter(d => {
         const dataDate = d.time.toISOString().split("T")[0];
-        const dataTime = d.time.toTimeString().split(" ")[0].slice(0, 5);
+        const dataTime = d.time.toTimeString().slice(0, 5);
         return (!searchDate || searchDate === dataDate) && (!searchTime || searchTime === dataTime);
       });
 
-      // Render data setelah update
       renderData(filteredData);
     }
 
-    // Fungsi untuk menampilkan data hasil pencarian ke tabel
+    // Render hasil pencarian
     function renderData(data) {
       const dataLogger = document.getElementById("data-logger");
       dataLogger.innerHTML = data.length
@@ -230,9 +244,8 @@
         : `<tr><td colspan="3">Tidak ada data yang sesuai.</td></tr>`;
     }
 
-    // Ambil data saat halaman dimuat, namun hanya update setiap 10 detik
-    setInterval(fetchData, 10000); // Update data setiap 10 detik
     fetchData();
+    setInterval(fetchData, 10000);
   </script>
 </body>
 </html>
