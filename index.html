@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monitoring Suhu & Kelembapan</title>
+  <title>Monitoring Suhu & Kelembaban</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -108,11 +108,11 @@
 <body>
   <div class="overlay"></div>
   <div class="container">
-    <h1>MONITORING SUHU & KELEMBAPAN</h1>
+    <h1>MONITORING SUHU & KELEMBABAN</h1>
     <h2>RUANG PERALATAN SIGNALLING & COMMUNICATION<br>LRT Sumsel DIVRE III Palembang</h2>
     <div id="current-time">--:--:--</div>
 
-    <div id="alert" class="alert">⚠️ Suhu atau kelembapan melebihi batas! Harap segera cek kondisi! ⚠️</div>
+    <div id="alert" class="alert">⚠️ Suhu atau kelembaban melebihi batas! Harap segera cek kondisi! ⚠️</div>
 
     <div class="widgets">
       <div class="widget" id="widget-suhu">
@@ -121,11 +121,11 @@
         <p>°C</p>
         <div id="last-update-suhu">Last update: --</div>
       </div>
-      <div class="widget" id="widget-kelembapan">
-        <h2>Kelembapan</h2>
-        <p id="kelembapan">--</p>
+      <div class="widget" id="widget-kelembaban">
+        <h2>Kelembaban</h2>
+        <p id="kelembaban">--</p>
         <p>%</p>
-        <div id="last-update-kelembapan">Last update: --</div>
+        <div id="last-update-kelembaban">Last update: --</div>
       </div>
     </div>
 
@@ -139,7 +139,7 @@
           <tr>
             <th>Waktu</th>
             <th>Suhu (°C)</th>
-            <th>Kelembapan (%)</th>
+            <th>Kelembaban (%)</th>
           </tr>
         </thead>
         <tbody id="data-logger">
@@ -175,7 +175,7 @@
         allData = data.feeds.map(feed => ({
           time: new Date(feed.created_at),
           suhu: parseFloat(feed.field1 || 0).toFixed(1),
-          kelembapan: parseFloat(feed.field2 || 0).toFixed(1),
+          kelembaban: parseFloat(feed.field2 || 0).toFixed(1),
         }));
         updateWidgets();
       } catch (error) {
@@ -188,13 +188,13 @@
       const latestData = allData[allData.length - 1];
       if (latestData) {
         document.getElementById("suhu").textContent = latestData.suhu;
-        document.getElementById("kelembapan").textContent = latestData.kelembapan;
+        document.getElementById("kelembaban").textContent = latestData.kelembaban;
         document.getElementById("last-update-suhu").textContent = `Last update: ${latestData.time.toLocaleString()}`;
-        document.getElementById("last-update-kelembapan").textContent = `Last update: ${latestData.time.toLocaleString()}`;
+        document.getElementById("last-update-kelembaban").textContent = `Last update: ${latestData.time.toLocaleString()}`;
 
         const alertEl = document.getElementById("alert");
         const widgetSuhu = document.getElementById("widget-suhu");
-        const widgetKelembapan = document.getElementById("widget-kelembapan");
+        const widgetKelembaban = document.getElementById("widget-kelembaban");
 
         let alertVisible = false;
 
@@ -205,11 +205,11 @@
           widgetSuhu.classList.remove("red");
         }
 
-        if (parseFloat(latestData.kelembapan) > 56) {
-          widgetKelembapan.classList.add("red");
+        if (parseFloat(latestData.kelembaban) > 56) {
+          widgetKelembaban.classList.add("red");
           alertVisible = true;
         } else {
-          widgetKelembapan.classList.remove("red");
+          widgetKelembaban.classList.remove("red");
         }
 
         alertEl.style.display = alertVisible ? "block" : "none";
@@ -221,11 +221,16 @@
       const searchDate = document.getElementById("search-date").value;
       const searchTime = document.getElementById("search-time").value;
 
-      const filteredData = allData.filter(d => {
-        const dataDate = d.time.toISOString().split("T")[0];
-        const dataTime = d.time.toTimeString().slice(0, 5);
-        return (!searchDate || searchDate === dataDate) && (!searchTime || searchTime === dataTime);
-      });
+      if (!searchDate) {
+        alert("Pilih tanggal untuk mencari data.");
+        return;
+      }
+
+      // Konversi tanggal pencarian ke WIB (awal hari)
+      const startDate = new Date(`${searchDate}T00:00:00+07:00`); // WIB 00:00
+      const endDate = new Date(`${searchDate}T23:59:59+07:00`);   // WIB 23:59
+
+      const filteredData = allData.filter(d => d.time >= startDate && d.time <= endDate);
 
       renderData(filteredData);
     }
@@ -238,7 +243,7 @@
             <tr>
               <td>${d.time.toLocaleString()}</td>
               <td>${d.suhu}</td>
-              <td>${d.kelembapan}</td>
+              <td>${d.kelembaban}</td>
             </tr>
           `).join("")
         : `<tr><td colspan="3">Tidak ada data yang sesuai.</td></tr>`;
