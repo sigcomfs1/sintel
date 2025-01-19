@@ -132,8 +132,9 @@
     <div class="search-container">
       <h2>Pencarian Data</h2>
       <input type="date" id="search-date" placeholder="Pilih tanggal">
-      <input type="time" id="search-time" placeholder="Pilih waktu">
+      <input type="date" id="search-date-end" placeholder="Pilih rentang tanggal">
       <button onclick="searchData()">Cari</button>
+      <button onclick="downloadData()" id="download-btn" disabled>Download Data</button>
       <table>
         <thead>
           <tr>
@@ -153,6 +154,7 @@
 
   <footer>Created by: R & P Sig&Com FS1</footer>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
   <script>
     const apiKey = "S1L16VTO8J421VNA";
     const channelID = "2784831";
@@ -219,38 +221,68 @@
     // Pencarian data berdasarkan tanggal dan waktu
     function searchData() {
       const searchDate = document.getElementById("search-date").value;
-      const searchTime = document.getElementById("search-time").value;
+      const searchDateEnd = document.getElementById("search-date-end").value;
 
-      if (!searchDate) {
+      if (!searchDate && !searchDateEnd) {
         alert("Pilih tanggal untuk mencari data.");
         return;
       }
 
-      // Konversi tanggal pencarian ke WIB (awal hari)
-      const startDate = new Date(`${searchDate}T00:00:00+07:00`); // WIB 00:00
-      const endDate = new Date(`${searchDate}T23:59:59+07:00`);   // WIB 23:59
+      const startDate = new Date(`${searchDate}T00:00:00+07:00`);
+      const endDate = searchDateEnd ? new Date(`${searchDateEnd}T23:59:59+07:00`) : new Date(`${searchDate}T23:59:59+07:00`);
 
       const filteredData = allData.filter(d => d.time >= startDate && d.time <= endDate);
 
       renderData(filteredData);
+
+      document.getElementById("download-btn").disabled = filteredData.length === 0;
     }
 
-    // Render hasil pencarian
+    // Render data ke tabel
     function renderData(data) {
       const dataLogger = document.getElementById("data-logger");
       dataLogger.innerHTML = data.length
-        ? data.map(d => `
-            <tr>
-              <td>${d.time.toLocaleString()}</td>
-              <td>${d.suhu}</td>
-              <td>${d.kelembaban}</td>
-            </tr>
-          `).join("")
+        ? data.map(d => {
+            // Tentukan kelas untuk suhu dan kelembaban yang melebihi batas
+            const suhuClass = parseFloat(d.suhu) > 25 ? 'red' : '';
+            const kelembabanClass = parseFloat(d.kelembaban) > 56 ? 'red' : '';
+
+            return `
+              <tr>
+                <td>${d.time.toLocaleString()}</td>
+                <td class="${suhuClass}">${d.suhu}</td>
+                <td class="${kelembabanClass}">${d.kelembaban}</td>
+              </tr>
+            `;
+          }).join("")
         : `<tr><td colspan="3">Tidak ada data yang sesuai.</td></tr>`;
     }
 
-    fetchData();
-    setInterval(fetchData, 10000);
+    // Fungsi download data dalam format Excel
+    function downloadData() {
+      const table = document.getElementById("data-logger");
+      const rows = table.getElementsByTagName("tr");
+      const data = [];
+
+      for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        if (cells.length > 0) {
+          data.push([cells[0].textContent, cells[1].textContent, cells[2].textContent]);
+        }
+      }
+
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Data Logger");
+
+      // Menyimpan file Excel
+      XLSX.writeFile(wb, "DataLogger.xlsx");
+    }
+
+    // Ambil data saat halaman dimuat
+    window.onload = function() {
+      fetchData();
+    };
   </script>
 </body>
 </html>
