@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Monitoring Suhu & Kelembaban</title>
   <style>
     body {
@@ -30,12 +30,6 @@
     h1, h2 {
       text-align: center;
     }
-    h1 {
-      font-size: 1.8em;
-    }
-    h2 {
-      font-size: 1.2em;
-    }
     #current-time {
       text-align: center;
       font-size: 1.2em;
@@ -43,7 +37,7 @@
     }
     .widgets {
       display: grid;
-      grid-template-columns: repeat(2, 1fr); /* 2 kolom */
+      grid-template-columns: repeat(2, 1fr);
       gap: 20px;
       margin: 20px 0;
     }
@@ -52,7 +46,6 @@
       padding: 20px;
       border-radius: 10px;
       text-align: center;
-      transition: background-color 0.3s;
     }
     .widget.red {
       background: rgba(255, 69, 0, 0.8);
@@ -76,7 +69,8 @@
       border-radius: 10px;
     }
     .search-container input,
-    .search-container button {
+    .search-container button,
+    .search-container select {
       padding: 10px;
       font-size: 16px;
       margin: 5px;
@@ -110,7 +104,15 @@
 </head>
 <body>
   <div class="overlay"></div>
-  <div class="container">
+<div id="login-form" style="text-align: center; margin-top: 100px; color: white;">
+  <h2>Login Dashboard</h2>
+  <input type="text" id="username" placeholder="Username" style="padding:10px; font-size:16px;" /><br><br>
+  <input type="password" id="password" placeholder="Password" style="padding:10px; font-size:16px;" /><br><br>
+  <button onclick="checkLogin()" style="padding:10px 20px; font-size:16px;">Login</button>
+  <p id="login-error" style="color: red; display: none;">Username atau Password salah!</p>
+</div>
+
+ <div class="container" id="dashboard" style="display: none;">
     <h1>MONITORING SUHU & KELEMBABAN</h1>
     <h2>RUANG PERALATAN SIGNALLING & COMMUNICATION<br>LRT Sumsel DIVRE III Palembang</h2>
     <div id="current-time">--:--:--</div>
@@ -131,7 +133,6 @@
         <div id="last-update-kelembaban">Last update: --</div>
       </div>
 
-      <!-- Widget kedua baris 2 -->
       <div class="widget" id="widget-suhu2">
         <h2>Suhu Ruang MDP & UPS</h2>
         <p id="suhu2">--</p>
@@ -148,6 +149,10 @@
 
     <div class="search-container">
       <h2>Pencarian Data</h2>
+      <select id="sensor-select">
+        <option value="1">Sensor 1 - Ruang Peralatan</option>
+        <option value="2">Sensor 2 - MDP & UPS</option>
+      </select>
       <input type="date" id="search-date" placeholder="Pilih tanggal">
       <input type="date" id="search-date-end" placeholder="Pilih rentang tanggal">
       <button onclick="searchData()">Cari</button>
@@ -156,15 +161,13 @@
         <thead>
           <tr>
             <th>Waktu</th>
-            <th>Suhu (°C) Ruang Peralatan</th>
-            <th>Kelembaban (%) Ruang Peralatan</th>
-            <th>Suhu (°C) MDP & UPS</th>
-            <th>Kelembaban (%) MDP & UPS</th>
+            <th>Suhu (°C)</th>
+            <th>Kelembaban (%)</th>
           </tr>
         </thead>
         <tbody id="data-logger">
           <tr>
-            <td colspan="5">Masukkan parameter pencarian untuk melihat data.</td>
+            <td colspan="3">Masukkan parameter pencarian untuk melihat data.</td>
           </tr>
         </tbody>
       </table>
@@ -175,18 +178,15 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
   <script>
-    const apiKey1 = "S1L16VTO8J421VNA";  // API Key untuk sensor 1
-    const channelID1 = "2784831";  // Channel ID untuk sensor 1
-
-    const apiKey2 = "ETIAYXQ995663JJO";  // API Key untuk sensor 2
-    const channelID2 = "2966268";  // Channel ID untuk sensor 2
+    const apiKey1 = "S1L16VTO8J421VNA";
+    const channelID1 = "2784831";
+    const apiKey2 = "ETIAYXQ995663JJO";
+    const channelID2 = "2966268";
 
     let allData1 = [];
     let allData2 = [];
-    let filteredData1 = [];
-    let filteredData2 = [];
+    let filteredData = [];
 
-    // Format waktu menjadi 24 jam dengan detik
     function formatDate(date) {
       return date.toLocaleString('id-ID', {
         hour12: false,
@@ -199,23 +199,16 @@
       });
     }
 
-    // Update waktu real-time (format 24 jam)
     function updateTime() {
       const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      const timeString = `${hours}:${minutes}:${seconds}`;
-      document.getElementById('current-time').textContent = timeString;
+      document.getElementById('current-time').textContent =
+        now.toLocaleTimeString('id-ID', { hour12: false });
     }
-
-    // Memperbarui waktu setiap detik
     setInterval(updateTime, 1000);
     updateTime();
 
     async function fetchData() {
       try {
-        // Fetch data dari Channel 1 (Sensor 1)
         const res1 = await fetch(`https://api.thingspeak.com/channels/${channelID1}/feeds.json?api_key=${apiKey1}&results=8000`);
         const result1 = await res1.json();
         allData1 = result1.feeds.map(feed => ({
@@ -224,13 +217,12 @@
           kelembaban: feed.field2 ? parseFloat(feed.field2).toFixed(1) : "--",
         }));
 
-        // Fetch data dari Channel 2 (Sensor 2)
         const res2 = await fetch(`https://api.thingspeak.com/channels/${channelID2}/feeds.json?api_key=${apiKey2}&results=8000`);
         const result2 = await res2.json();
         allData2 = result2.feeds.map(feed => ({
           time: new Date(feed.created_at),
-          suhu2: feed.field1 ? parseFloat(feed.field1).toFixed(1) : "--",
-          kelembaban2: feed.field2 ? parseFloat(feed.field2).toFixed(1) : "--",
+          suhu: feed.field1 ? parseFloat(feed.field1).toFixed(1) : "--",
+          kelembaban: feed.field2 ? parseFloat(feed.field2).toFixed(1) : "--",
         }));
 
         updateWidgets();
@@ -240,27 +232,22 @@
     }
 
     function updateWidgets() {
-      const latestData1 = allData1[allData1.length - 1];
-      const latestData2 = allData2[allData2.length - 1];
-
+      const latest1 = allData1[allData1.length - 1];
+      const latest2 = allData2[allData2.length - 1];
       let alertVisible = false;
 
-      if (latestData1) {
-        document.getElementById("suhu").textContent = latestData1.suhu;
-        document.getElementById("kelembaban").textContent = latestData1.kelembaban;
-        document.getElementById("last-update-suhu").textContent = `Last update: ${formatDate(latestData1.time)}`;
-        document.getElementById("last-update-kelembaban").textContent = `Last update: ${formatDate(latestData1.time)}`;
-
-        // Alarm suhu lebih dari 24.9°C (Sensor 1)
-        if (parseFloat(latestData1.suhu) > 24.9) {
+      if (latest1) {
+        document.getElementById("suhu").textContent = latest1.suhu;
+        document.getElementById("kelembaban").textContent = latest1.kelembaban;
+        document.getElementById("last-update-suhu").textContent = `Last update: ${formatDate(latest1.time)}`;
+        document.getElementById("last-update-kelembaban").textContent = `Last update: ${formatDate(latest1.time)}`;
+        if (parseFloat(latest1.suhu) > 24.9) {
           document.getElementById("widget-suhu").classList.add("red");
           alertVisible = true;
         } else {
           document.getElementById("widget-suhu").classList.remove("red");
         }
-
-        // Alarm kelembaban lebih dari 60% (Sensor 1)
-        if (parseFloat(latestData1.kelembaban) > 60) {
+        if (parseFloat(latest1.kelembaban) > 60) {
           document.getElementById("widget-kelembaban").classList.add("red");
           alertVisible = true;
         } else {
@@ -268,22 +255,18 @@
         }
       }
 
-      if (latestData2) {
-        document.getElementById("suhu2").textContent = latestData2.suhu2;
-        document.getElementById("kelembaban2").textContent = latestData2.kelembaban2;
-        document.getElementById("last-update-suhu2").textContent = `Last update: ${formatDate(latestData2.time)}`;
-        document.getElementById("last-update-kelembaban2").textContent = `Last update: ${formatDate(latestData2.time)}`;
-
-        // Alarm suhu lebih dari 24.9°C (Sensor 2)
-        if (parseFloat(latestData2.suhu2) > 24.9) {
+      if (latest2) {
+        document.getElementById("suhu2").textContent = latest2.suhu;
+        document.getElementById("kelembaban2").textContent = latest2.kelembaban;
+        document.getElementById("last-update-suhu2").textContent = `Last update: ${formatDate(latest2.time)}`;
+        document.getElementById("last-update-kelembaban2").textContent = `Last update: ${formatDate(latest2.time)}`;
+        if (parseFloat(latest2.suhu) > 24.9) {
           document.getElementById("widget-suhu2").classList.add("red");
           alertVisible = true;
         } else {
           document.getElementById("widget-suhu2").classList.remove("red");
         }
-
-        // Alarm kelembaban lebih dari 60% (Sensor 2)
-        if (parseFloat(latestData2.kelembaban2) > 60) {
+        if (parseFloat(latest2.kelembaban) > 60) {
           document.getElementById("widget-kelembaban2").classList.add("red");
           alertVisible = true;
         } else {
@@ -291,76 +274,67 @@
         }
       }
 
-      const alertEl = document.getElementById("alert");
-      alertEl.style.display = alertVisible ? "block" : "none";
+      document.getElementById("alert").style.display = alertVisible ? "block" : "none";
     }
 
-    // Fungsi untuk mencari data berdasarkan tanggal
     function searchData() {
-      const searchDate = document.getElementById("search-date").value;
-      const searchDateEnd = document.getElementById("search-date-end").value;
+      const sensor = document.getElementById("sensor-select").value;
+      const start = document.getElementById("search-date").value;
+      const end = document.getElementById("search-date-end").value;
 
-      if (!searchDate && !searchDateEnd) {
-        alert("Pilih tanggal untuk mencari data.");
+      if (!start) {
+        alert("Pilih tanggal terlebih dahulu.");
         return;
       }
 
-      const startDate = new Date(`${searchDate}T00:00:00+07:00`);
-      const endDate = searchDateEnd ? new Date(`${searchDateEnd}T23:59:59+07:00`) : new Date(`${searchDate}T23:59:59+07:00`);
+      const startDate = new Date(`${start}T00:00:00+07:00`);
+      const endDate = end ? new Date(`${end}T23:59:59+07:00`) : new Date(`${start}T23:59:59+07:00`);
 
-      filteredData1 = allData1.filter(d => d.time >= startDate && d.time <= endDate);
-      filteredData2 = allData2.filter(d => d.time >= startDate && d.time <= endDate);
+      const dataSet = sensor === "1" ? allData1 : allData2;
+      filteredData = dataSet.filter(d => d.time >= startDate && d.time <= endDate);
 
-      renderData(filteredData1, filteredData2);
-      
-      // Enable the download button after search
-      document.getElementById("download-btn").disabled = false;
-    }
-
-    // Fungsi untuk merender data
-    function renderData(data1, data2) {
       const dataLogger = document.getElementById("data-logger");
-      dataLogger.innerHTML = data1.length || data2.length
-        ? data1.map((d1, index) => {
-            const d2 = data2[index] || {};
-
-            const suhuClass1 = parseFloat(d1.suhu) > 24.9 ? 'red-text' : '';
-            const kelembabanClass1 = parseFloat(d1.kelembaban) > 60 ? 'red-text' : '';
-            const suhuClass2 = parseFloat(d2.suhu2) > 24.9 ? 'red-text' : '';
-            const kelembabanClass2 = parseFloat(d2.kelembaban2) > 60 ? 'red-text' : '';
-
+      dataLogger.innerHTML = filteredData.length
+        ? filteredData.map(d => {
+            const suhuClass = parseFloat(d.suhu) > 24.9 ? 'red-text' : '';
+            const kelembabanClass = parseFloat(d.kelembaban) > 60 ? 'red-text' : '';
             return `
               <tr>
-                <td>${d1.time ? formatDate(d1.time) : '--'}</td>
-                <td class="${suhuClass1}">${d1.suhu}</td>
-                <td class="${kelembabanClass1}">${d1.kelembaban}</td>
-                <td class="${suhuClass2}">${d2.suhu2 || '--'}</td>
-                <td class="${kelembabanClass2}">${d2.kelembaban2 || '--'}</td>
-              </tr>
-            `;
-          }).join("")
-        : `<tr><td colspan="5">Data tidak ditemukan.</td></tr>`;
+                <td>${formatDate(d.time)}</td>
+                <td class="${suhuClass}">${d.suhu}</td>
+                <td class="${kelembabanClass}">${d.kelembaban}</td>
+              </tr>`;
+          }).join('')
+        : `<tr><td colspan="3">Data tidak ditemukan.</td></tr>`;
+
+      document.getElementById("download-btn").disabled = filteredData.length === 0;
     }
 
-    // Fungsi untuk mendownload data
     function downloadData() {
       const wb = XLSX.utils.book_new();
-      const wsData = [["Waktu", "Suhu (°C) Ruang Peralatan", "Kelembaban (%) Ruang Peralatan", "Suhu (°C) MDP & UPS", "Kelembaban (%) MDP & UPS"]];
-      
-      filteredData1.forEach((d1, index) => {
-        const d2 = filteredData2[index] || {};
-        wsData.push([
-          formatDate(d1.time), d1.suhu, d1.kelembaban, d2.suhu2 || '--', d2.kelembaban2 || '--'
-        ]);
+      const wsData = [["Waktu", "Suhu (°C)", "Kelembaban (%)"]];
+      filteredData.forEach(d => {
+        wsData.push([formatDate(d.time), d.suhu, d.kelembaban]);
       });
-
       const ws = XLSX.utils.aoa_to_sheet(wsData);
       XLSX.utils.book_append_sheet(wb, ws, "Data");
       XLSX.writeFile(wb, "data_logger.xlsx");
     }
 
-    // Panggil data saat halaman dimuat
-    fetchData();
+    function checkLogin() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const loginError = document.getElementById("login-error");
+
+  if (username === "admin" && password === "1234") {
+    document.getElementById("login-form").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    fetchData(); // mulai ambil data setelah login
+  } else {
+    loginError.style.display = "block";
+  }
+}
+
   </script>
 </body>
 </html>
