@@ -22,7 +22,7 @@
       z-index: -1;
     }
     .container {
-      max-width: 800px;
+      max-width: 1000px;
       margin: 20px auto;
       color: #fff;
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
@@ -35,59 +35,38 @@
       font-size: 1.2em;
       margin-bottom: 20px;
     }
+    .station {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+    .station-title {
+      font-size: 1.4em;
+      margin-bottom: 10px;
+      text-align: center;
+    }
     .widgets {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 20px;
-      margin: 20px 0;
     }
     .widget {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
       border-radius: 10px;
       text-align: center;
     }
     .widget.red {
       background: rgba(255, 69, 0, 0.8);
     }
-    #last-update {
-      font-size: 0.9em;
-      margin-top: 10px;
-    }
     .alert {
-      background: rgba(255, 69, 0, 0.8);
+      background: rgba(255, 0, 0, 0.8);
       padding: 10px;
       border-radius: 5px;
       margin: 10px 0;
       text-align: center;
       display: none;
-    }
-    .search-container {
-      margin-top: 30px;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
-    }
-    .search-container input,
-    .search-container button,
-    .search-container select {
-      padding: 10px;
-      font-size: 16px;
-      margin: 5px;
-      border-radius: 5px;
-      border: 1px solid #ddd;
-      color: #000;
-    }
-    table {
-      width: 100%;
-      margin-top: 20px;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.1);
     }
     footer {
       text-align: center;
@@ -96,96 +75,152 @@
       font-weight: bold;
       color: #eee;
     }
-    .red-text {
-      color: red;
-      font-weight: bold;
+    .data-logger {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 40px;
+      color: #fff;
+    }
+    .data-logger h3 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .data-logger form {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .data-logger input,
+    .data-logger select,
+    .data-logger button {
+      padding: 8px;
+      font-size: 1em;
+      border-radius: 5px;
+      border: none;
+    }
+    .data-logger input[type="date"],
+    .data-logger select {
+      background: rgba(255, 255, 255, 0.9);
+      color: #000;
+    }
+    .data-logger button {
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    .data-logger button:hover {
+      background-color: #218838;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    table th,
+    table td {
+      border: 1px solid #fff;
+      padding: 8px;
+      text-align: center;
+      color: #fff;
+    }
+    table th {
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+    .download-btn {
+      background-color: #007bff;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+    }
+    .download-btn:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
   <div class="overlay"></div>
-<div id="login-form" style="text-align: center; margin-top: 100px; color: white;">
-  <h2>Login Dashboard</h2>
-  <input type="text" id="username" placeholder="Username" style="padding:10px; font-size:16px;" /><br><br>
-  <input type="password" id="password" placeholder="Password" style="padding:10px; font-size:16px;" /><br><br>
-  <button onclick="checkLogin()" style="padding:10px 20px; font-size:16px;">Login</button>
-  <p id="login-error" style="color: red; display: none;">Username atau Password salah!</p>
-</div>
-
- <div class="container" id="dashboard" style="display: none;">
+  <div class="container">
     <h1>MONITORING SUHU & KELEMBABAN</h1>
     <h2>RUANG PERALATAN SIGNALLING & COMMUNICATION<br>LRT Sumsel DIVRE III Palembang</h2>
     <div id="current-time">--:--:--</div>
-
     <div id="alert" class="alert">⚠️ Suhu atau kelembaban melebihi batas! Harap segera cek kondisi! ⚠️</div>
 
-    <div class="widgets">
-      <div class="widget" id="widget-suhu">
-        <h2>Suhu Ruang Peralatan Persinyalan & Telekomunikasi</h2>
-        <p id="suhu">--</p>
-        <p>°C</p>
-        <div id="last-update-suhu">Last update: --</div>
-      </div>
-      <div class="widget" id="widget-kelembaban">
-        <h2>Kelembaban Ruang Peralatan Persinyalan & Telekomunikasi</h2>
-        <p id="kelembaban">--</p>
-        <p>%</p>
-        <div id="last-update-kelembaban">Last update: --</div>
-      </div>
+    <div id="stations"></div>
 
-      <div class="widget" id="widget-suhu2">
-        <h2>Suhu Ruang MDP & UPS</h2>
-        <p id="suhu2">--</p>
-        <p>°C</p>
-        <div id="last-update-suhu2">Last update: --</div>
-      </div>
-      <div class="widget" id="widget-kelembaban2">
-        <h2>Kelembaban Ruang MDP & UPS</h2>
-        <p id="kelembaban2">--</p>
-        <p>%</p>
-        <div id="last-update-kelembaban2">Last update: --</div>
-      </div>
-    </div>
-
-    <div class="search-container">
-      <h2>Pencarian Data</h2>
-      <select id="sensor-select">
-        <option value="1">Sensor 1 - Ruang Peralatan</option>
-        <option value="2">Sensor 2 - MDP & UPS</option>
-      </select>
-      <input type="date" id="search-date" placeholder="Pilih tanggal">
-      <input type="date" id="search-date-end" placeholder="Pilih rentang tanggal">
-      <button onclick="searchData()">Cari</button>
-      <button onclick="downloadData()" id="download-btn" disabled>Download Data</button>
-      <table>
-        <thead>
-          <tr>
-            <th>Waktu</th>
-            <th>Suhu (°C)</th>
-            <th>Kelembaban (%)</th>
-          </tr>
-        </thead>
-        <tbody id="data-logger">
-          <tr>
-            <td colspan="3">Masukkan parameter pencarian untuk melihat data.</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Data Logger -->
+    <div class="data-logger">
+      <h3>Data Logger</h3>
+      <form id="logForm">
+        <select id="sensorSelect">
+          <option value="" disabled selected>Pilih Sensor</option>
+        </select>
+        <input type="date" id="startDate">
+        <input type="date" id="endDate">
+        <button type="submit">Cari</button>
+        <button type="button" class="download-btn" onclick="downloadExcel()">Download Excel</button>
+      </form>
+      <div id="logResult"></div>
     </div>
   </div>
-
   <footer>Created by: PR Project Sig&Com FS1</footer>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
   <script>
-    const apiKey1 = "S1L16VTO8J421VNA";
-    const channelID1 = "2784831";
-    const apiKey2 = "ETIAYXQ995663JJO";
-    const channelID2 = "2966268";
+    const stationNames = [
+      "Stasiun Garuda Dempo", "Stasiun Asrama Haji", "Stasiun Punti Kayu", 
+      "Stasiun RSUD", "Stasiun Bandara", "Stasiun Demang"
+    ];
 
-    let allData1 = [];
-    let allData2 = [];
-    let filteredData = [];
+    const sensorList = [
+      {channel: '2966268', key: 'ETIAYXQ995663JJO'},  // ➜ Ruang Peralatan (Stasiun 1)
+      {channel: '2784831', key: 'S1L16VTO8J421VNA'},  // ➜ Ruang MDP (Stasiun 1)
+      {channel: 'CH2A', key: 'KEY2A'}, // ➜ Ruang Peralatan (Stasiun 2)
+      {channel: 'CH3B', key: 'KEY3B'},  // ➜ Ruang MDP (Stasiun 2)
+      {channel: 'CH4A', key: 'KEY4A'},  // ➜ Ruang Peralatan (Stasiun 3)
+      {channel: 'CH4B', key: 'KEY4B'},  // ➜ Ruang MDP (Stasiun 3)
+      {channel: 'CH5A', key: 'KEY5A'},  // ➜ Ruang Peralatan (Stasiun 4)
+      {channel: 'CH5B', key: 'KEY5B'},  // ➜ Ruang MDP (Stasiun 4)
+      {channel: 'CH6A', key: 'KEY6B'},  // ➜ Ruang Peralatan (Stasiun 5)
+      {channel: 'CH6B', key: 'KEY6B'},  // ➜ Ruang MDP (Stasiun 5)
+      {channel: 'CH7A', key: 'KEY7A'}, // ➜ Ruang Peralatan (Stasiun 6)
+      {channel: 'CH7B', key: 'KEY7B'}   // ➜ Ruang MDP (Stasiun 6)
+    ];
+
+    const sensorLabels = [
+      "Stasiun Garuda Dempo - Ruang Peralatan",
+      "Stasiun Garuda Dempo - Ruang MDP",
+      "Stasiun Asrama Haji - Ruang Peralatan",
+      "Stasiun Asrama Haji - Ruang MDP",
+      "Stasiun Punti Kayu - Ruang Peralatan",
+      "Stasiun Punti Kayu - Ruang MDP",
+      "Stasiun RSUD - Ruang Peralatan",
+      "Stasiun RSUD - Ruang MDP",
+      "Stasiun Bandara - Ruang Peralatan",
+      "Stasiun Bandara - Ruang MDP",
+      "Stasiun Demang - Ruang Peralatan",
+      "Stasiun Demang - Ruang MDP"
+    ];
+
+    document.getElementById("sensorSelect").innerHTML += sensorLabels.map((label, i) => `<option value="${i}">${label}</option>`).join('');
+
+    function createStation(index, name) {
+      return `
+        <div class="station" id="station-${index}">
+          <div class="station-title">${name}</div>
+          <div class="widgets">
+            <div class="widget" id="suhu${index}-1"><strong>Suhu Ruang Peralatan Persinyalan & Telekomunikasi:</strong><br>Loading...</div>
+            <div class="widget" id="kelembaban${index}-1"><strong>Kelembaban Peralatan Persinyalan & Telekomunikasi:</strong><br>Loading...</div>
+            <div class="widget" id="suhu${index}-2"><strong>Suhu Ruang MDP & UPS:</strong><br>Loading...</div>
+            <div class="widget" id="kelembaban${index}-2"><strong>Kelembaban Ruang MDP & UPS:</strong><br>Loading...</div>
+          </div>
+        </div>`;
+    }
+
+    document.getElementById("stations").innerHTML = stationNames.map((name, i) => createStation(i + 1, name)).join('');
 
     function formatDate(date) {
       return date.toLocaleString('id-ID', {
@@ -199,142 +234,200 @@
       });
     }
 
-    function updateTime() {
-      const now = new Date();
-      document.getElementById('current-time').textContent =
-        now.toLocaleTimeString('id-ID', { hour12: false });
-    }
-    setInterval(updateTime, 1000);
-    updateTime();
-
-    async function fetchData() {
+    async function fetchSensorData(index, sensorIndex) {
+      const sensor = sensorList[(index - 1) * 2 + (sensorIndex - 1)];
       try {
-        const res1 = await fetch(`https://api.thingspeak.com/channels/${channelID1}/feeds.json?api_key=${apiKey1}&results=8000`);
-        const result1 = await res1.json();
-        allData1 = result1.feeds.map(feed => ({
-          time: new Date(feed.created_at),
-          suhu: feed.field1 ? parseFloat(feed.field1).toFixed(1) : "--",
-          kelembaban: feed.field2 ? parseFloat(feed.field2).toFixed(1) : "--",
-        }));
-
-        const res2 = await fetch(`https://api.thingspeak.com/channels/${channelID2}/feeds.json?api_key=${apiKey2}&results=8000`);
-        const result2 = await res2.json();
-        allData2 = result2.feeds.map(feed => ({
-          time: new Date(feed.created_at),
-          suhu: feed.field1 ? parseFloat(feed.field1).toFixed(1) : "--",
-          kelembaban: feed.field2 ? parseFloat(feed.field2).toFixed(1) : "--",
-        }));
-
-        updateWidgets();
-      } catch (error) {
-        console.error("Gagal mengambil data", error);
+        const res = await fetch(`https://api.thingspeak.com/channels/${sensor.channel}/feeds.json?api_key=${sensor.key}&results=1`);
+        const data = await res.json();
+        if (data.feeds && data.feeds.length > 0) {
+          return data.feeds[0];
+        }
+        return null;
+      } catch {
+        return null;
       }
     }
 
-    function updateWidgets() {
-      const latest1 = allData1[allData1.length - 1];
-      const latest2 = allData2[allData2.length - 1];
-      let alertVisible = false;
+    async function updateData() {
+  let alertShown = false;
+  for(let i = 1; i <= 6; i++) {
+    const data1 = await fetchSensorData(i, 1);
+    const data2 = await fetchSensorData(i, 2);
 
-      if (latest1) {
-        document.getElementById("suhu").textContent = latest1.suhu;
-        document.getElementById("kelembaban").textContent = latest1.kelembaban;
-        document.getElementById("last-update-suhu").textContent = `Last update: ${formatDate(latest1.time)}`;
-        document.getElementById("last-update-kelembaban").textContent = `Last update: ${formatDate(latest1.time)}`;
-        if (parseFloat(latest1.suhu) > 24.9) {
-          document.getElementById("widget-suhu").classList.add("red");
-          alertVisible = true;
-        } else {
-          document.getElementById("widget-suhu").classList.remove("red");
-        }
-        if (parseFloat(latest1.kelembaban) > 60) {
-          document.getElementById("widget-kelembaban").classList.add("red");
-          alertVisible = true;
-        } else {
-          document.getElementById("widget-kelembaban").classList.remove("red");
-        }
+    const suhu1 = data1 && data1.field1 ? parseFloat(data1.field1) : null;
+    const kelembaban1 = data1 && data1.field2 ? parseFloat(data1.field2) : null;
+
+    const suhu2 = data2 && data2.field1 ? parseFloat(data2.field1) : null;
+    const kelembaban2 = data2 && data2.field2 ? parseFloat(data2.field2) : null;
+
+    const suhu1El = document.getElementById(`suhu${i}-1`);
+    const kelembaban1El = document.getElementById(`kelembaban${i}-1`);
+    const suhu2El = document.getElementById(`suhu${i}-2`);
+    const kelembaban2El = document.getElementById(`kelembaban${i}-2`);
+
+    // Update suhu dan kelembaban seperti biasa
+    suhu1El.innerHTML = `<strong>Suhu Ruang Peralatan Persinyalan & Telekomunikasi:</strong><br>${suhu1 !== null ? suhu1.toFixed(1) + ' °C' : '--'}`;
+    kelembaban1El.innerHTML = `<strong>Kelembaban Peralatan Persinyalan & Telekomunikasi:</strong><br>${kelembaban1 !== null ? kelembaban1.toFixed(1) + '%' : '--'}`;
+    suhu2El.innerHTML = `<strong>Suhu Ruang MDP & UPS:</strong><br>${suhu2 !== null ? suhu2.toFixed(1) + ' °C' : '--'}`;
+    kelembaban2El.innerHTML = `<strong>Kelembaban Ruang MDP & UPS:</strong><br>${kelembaban2 !== null ? kelembaban2.toFixed(1) + '%' : '--'}`;
+
+    // Update warna merah jika melebihi batas
+    suhu1El.classList.toggle('red', suhu1 !== null && suhu1 > 24.9);
+    kelembaban1El.classList.toggle('red', kelembaban1 !== null && kelembaban1 > 60);
+    suhu2El.classList.toggle('red', suhu2 !== null && suhu2 > 24.9);
+    kelembaban2El.classList.toggle('red', kelembaban2 !== null && kelembaban2 > 60);
+
+    // --- TAMBAHKAN BAGIAN INI UNTUK WAKTU TERAKHIR ---
+    // Buat elemen waktu terakhir di widget, kalau belum ada, buat baru
+    function updateLastUpdated(el, created_at) {
+      let lastUpdated = el.querySelector('.last-updated');
+      if (!lastUpdated) {
+        lastUpdated = document.createElement('div');
+        lastUpdated.className = 'last-updated';
+        lastUpdated.style.fontSize = '0.8em';
+        lastUpdated.style.marginTop = '5px';
+        lastUpdated.style.color = '#ddd';
+        el.appendChild(lastUpdated);
       }
-
-      if (latest2) {
-        document.getElementById("suhu2").textContent = latest2.suhu;
-        document.getElementById("kelembaban2").textContent = latest2.kelembaban;
-        document.getElementById("last-update-suhu2").textContent = `Last update: ${formatDate(latest2.time)}`;
-        document.getElementById("last-update-kelembaban2").textContent = `Last update: ${formatDate(latest2.time)}`;
-        if (parseFloat(latest2.suhu) > 24.9) {
-          document.getElementById("widget-suhu2").classList.add("red");
-          alertVisible = true;
-        } else {
-          document.getElementById("widget-suhu2").classList.remove("red");
-        }
-        if (parseFloat(latest2.kelembaban) > 60) {
-          document.getElementById("widget-kelembaban2").classList.add("red");
-          alertVisible = true;
-        } else {
-          document.getElementById("widget-kelembaban2").classList.remove("red");
-        }
+      if (created_at) {
+        const dateObj = new Date(created_at);
+        lastUpdated.textContent = `Last Update: ${dateObj.toLocaleString('id-ID', { hour12:false })}`;
+      } else {
+        lastUpdated.textContent = `Last Update: --`;
       }
-
-      document.getElementById("alert").style.display = alertVisible ? "block" : "none";
     }
 
-    function searchData() {
-      const sensor = document.getElementById("sensor-select").value;
-      const start = document.getElementById("search-date").value;
-      const end = document.getElementById("search-date-end").value;
+    updateLastUpdated(suhu1El, data1 ? data1.created_at : null);
+    updateLastUpdated(kelembaban1El, data1 ? data1.created_at : null);
+    updateLastUpdated(suhu2El, data2 ? data2.created_at : null);
+    updateLastUpdated(kelembaban2El, data2 ? data2.created_at : null);
+    // --- SELESAI BAGIAN TAMBAHAN ---
 
-      if (!start) {
-        alert("Pilih tanggal terlebih dahulu.");
+    // Show alert jika ada batas terlampaui
+    if (
+      (suhu1 !== null && suhu1 > 24.9) || (kelembaban1 !== null && kelembaban1 > 60) ||
+      (suhu2 !== null && suhu2 > 24.9) || (kelembaban2 !== null && kelembaban2 > 60)
+    ) {
+      alertShown = true;
+    }
+  }
+  document.getElementById("alert").style.display = alertShown ? "block" : "none";
+
+  // Update waktu sekarang (header)
+  const now = new Date();
+  document.getElementById("current-time").textContent = formatDate(now);
+}
+
+
+    setInterval(updateData, 1000);
+    updateData();
+
+    // Data Logger Form Logic
+    document.getElementById("logForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const index = parseInt(document.getElementById("sensorSelect").value);
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+
+      if (isNaN(index) || !startDate) {
+        alert("Pilih sensor dan tanggal mulai.");
         return;
       }
 
-      const startDate = new Date(`${start}T00:00:00+07:00`);
-      const endDate = end ? new Date(`${end}T23:59:59+07:00`) : new Date(`${start}T23:59:59+07:00`);
+      const sensor = sensorList[index];
+      const url = `https://api.thingspeak.com/channels/${sensor.channel}/feeds.json?api_key=${sensor.key}&start=${startDate}T00:00:00${
+        endDate ? `&end=${endDate}T23:59:59` : ""
+      }&timezone=Asia/Jakarta&results=8000`;
 
-      const dataSet = sensor === "1" ? allData1 : allData2;
-      filteredData = dataSet.filter(d => d.time >= startDate && d.time <= endDate);
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
 
-      const dataLogger = document.getElementById("data-logger");
-      dataLogger.innerHTML = filteredData.length
-        ? filteredData.map(d => {
-            const suhuClass = parseFloat(d.suhu) > 24.9 ? 'red-text' : '';
-            const kelembabanClass = parseFloat(d.kelembaban) > 60 ? 'red-text' : '';
-            return `
+        if (!data.feeds || data.feeds.length === 0) {
+          document.getElementById("logResult").innerHTML = "<p>Tidak ada data.</p>";
+          return;
+        }
+
+        const startDateObj = new Date(startDate + "T00:00:00");
+        const endDateObj = endDate ? new Date(endDate + "T23:59:59") : new Date(startDate + "T23:59:59");
+
+        const filteredFeeds = data.feeds.filter(f => {
+          const feedDate = new Date(f.created_at);
+          return feedDate >= startDateObj && feedDate <= endDateObj;
+        });
+
+        if (filteredFeeds.length === 0) {
+          document.getElementById("logResult").innerHTML = "<p>Tidak ada data.</p>";
+          return;
+        }
+
+        const rows = filteredFeeds.map(f => {
+          const suhu = parseFloat(f.field1);
+          const kelembaban = parseFloat(f.field2);
+          const waktu = new Date(f.created_at).toLocaleString("id-ID");
+
+          const suhuDisplay = isNaN(suhu)
+            ? "--"
+            : `<span style="color:${suhu > 24.9 ? 'red' : 'white'}">${suhu.toFixed(1)} °C</span>`;
+
+          const kelembabanDisplay = isNaN(kelembaban)
+            ? "--"
+            : `<span style="color:${kelembaban > 60 ? 'red' : 'white'}">${kelembaban.toFixed(1)}%</span>`;
+
+          return `<tr>
+            <td>${waktu}</td>
+            <td>${suhuDisplay}</td>
+            <td>${kelembabanDisplay}</td>
+          </tr>`;
+        });
+
+        document.getElementById("logResult").innerHTML = `
+          <table>
+            <thead>
               <tr>
-                <td>${formatDate(d.time)}</td>
-                <td class="${suhuClass}">${d.suhu}</td>
-                <td class="${kelembabanClass}">${d.kelembaban}</td>
-              </tr>`;
-          }).join('')
-        : `<tr><td colspan="3">Data tidak ditemukan.</td></tr>`;
+                <th>Waktu</th>
+                <th>Suhu</th>
+                <th>Kelembaban</th>
+              </tr>
+            </thead>
+            <tbody>${rows.join("")}</tbody>
+          </table>
+        `;
+      } catch (err) {
+        console.error(err);
+        document.getElementById("logResult").innerHTML = "<p>Gagal mengambil data.</p>";
+      }
+    });
 
-      document.getElementById("download-btn").disabled = filteredData.length === 0;
-    }
+    // Download Excel function for data logger
+    function downloadExcel() {
+      const table = document.querySelector("#logResult table");
+      if (!table) {
+        alert("Tidak ada data untuk diunduh.");
+        return;
+      }
 
-    function downloadData() {
-      const wb = XLSX.utils.book_new();
-      const wsData = [["Waktu", "Suhu (°C)", "Kelembaban (%)"]];
-      filteredData.forEach(d => {
-        wsData.push([formatDate(d.time), d.suhu, d.kelembaban]);
+      let csv = [];
+      const rows = table.querySelectorAll("tr");
+      rows.forEach(row => {
+        const cols = row.querySelectorAll("th, td");
+        const rowData = [];
+        cols.forEach(col => {
+          // Hilangkan tag span dan ambil text saja
+          rowData.push(col.innerText.trim());
+        });
+        csv.push(rowData.join(","));
       });
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
-      XLSX.utils.book_append_sheet(wb, ws, "Data");
-      XLSX.writeFile(wb, "data_logger.xlsx");
+
+      const csvString = csv.join("\n");
+      const blob = new Blob([csvString], {type: "text/csv"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "data_logger.csv";
+      a.click();
+      URL.revokeObjectURL(url);
     }
-
-    function checkLogin() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-  const loginError = document.getElementById("login-error");
-
-  if (username === "admin" && password === "1234") {
-    document.getElementById("login-form").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-    fetchData(); // mulai ambil data setelah login
-  } else {
-    loginError.style.display = "block";
-  }
-}
-
   </script>
 </body>
 </html>
