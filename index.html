@@ -144,7 +144,28 @@
 </head>
 <body>
   <div class="overlay"></div>
-  <div class="container">
+<div id="login-form" style="text-align: center; margin-top: 100px; color: white;">
+  <h2>Login Dashboard</h2>
+  <input type="text" id="username" placeholder="Username" style="padding:10px; font-size:16px;" /><br><br>
+  <input type="password" id="password" placeholder="Password" style="padding:10px; font-size:16px;" /><br><br>
+  <button onclick="checkLogin()" style="padding:10px 20px; font-size:16px;">Login</button>
+  <p id="login-error" style="color: red; display: none;">Username atau Password salah!</p>
+</div>
+
+<div id="settingsMenu" style="position: fixed; top: 20px; right: 20px; z-index: 10; display: none;">
+  <div style="position: relative;">
+    <button onclick="toggleDropdown()" style="padding: 8px 12px; background-color: #444; color: white; border: none; border-radius: 5px; cursor: pointer;">
+      ⚙️ Settings
+    </button>
+    <div id="dropdown" style="display: none; position: absolute; right: 0; margin-top: 5px; background: rgba(0,0,0,0.8); border-radius: 5px; overflow: hidden;">
+      <button onclick="ubahPassword()" style="display: block; width: 100%; padding: 10px; color: white; background: none; border: none; text-align: left; cursor: pointer;">🔒 Ubah Password</button>
+      <button onclick="logout()" style="display: block; width: 100%; padding: 10px; color: white; background: none; border: none; text-align: left; cursor: pointer;">🚪 Logout</button>
+    </div>
+  </div>
+</div>
+
+  <div class="container" id="dashboard" style="display: none;">
+
     <h1>MONITORING SUHU & KELEMBABAN</h1>
     <h2>RUANG PERALATAN SIGNALLING & COMMUNICATION<br>LRT Sumsel DIVRE III Palembang</h2>
     <div id="current-time">--:--:--</div>
@@ -176,8 +197,8 @@
     ];
 
     const sensorList = [
-      {channel: '2966268', key: 'ETIAYXQ995663JJO'},  // ➜ Ruang Peralatan (Stasiun 1)
-      {channel: '2784831', key: 'S1L16VTO8J421VNA'},  // ➜ Ruang MDP (Stasiun 1)
+      {channel: '2784831', key: 'S1L16VTO8J421VNA'},  // ➜ Ruang Peralatan (Stasiun 1)
+      {channel: '2966268', key: 'ETIAYXQ995663JJO'},  // ➜ Ruang MDP (Stasiun 1)
       {channel: 'CH2A', key: 'KEY2A'}, // ➜ Ruang Peralatan (Stasiun 2)
       {channel: 'CH3B', key: 'KEY3B'},  // ➜ Ruang MDP (Stasiun 2)
       {channel: 'CH4A', key: 'KEY4A'},  // ➜ Ruang Peralatan (Stasiun 3)
@@ -428,6 +449,38 @@
       a.click();
       URL.revokeObjectURL(url);
     }
+function checkLogin() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const loginError = document.getElementById("login-error");
+
+  if (username === "admin" && password === "sintel1") {
+    document.getElementById("login-form").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    document.getElementById("settingsMenu").style.display = "block";
+
+    fetchData(); // mulai ambil data setelah login
+  } else {
+    loginError.style.display = "block";
+  }
+}
+function toggleDropdown() {
+  const dropdown = document.getElementById("dropdown");
+  dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+}
+
+function ubahPassword() {
+  alert("Fitur ubah password belum tersedia.");
+  toggleDropdown();
+}
+
+function logout() {
+  document.getElementById("dashboard").style.display = "none";
+  document.getElementById("login-form").style.display = "block";
+  document.getElementById("settingsMenu").style.display = "none";
+  toggleDropdown();
+}
+
   </script>
 </body>
 </html>
