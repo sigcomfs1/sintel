@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Monitoring Suhu & Kelembaban</title>
+  <title>Monitoring Suhu & Kelembapan</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -166,10 +166,10 @@
 
   <div class="container" id="dashboard" style="display: none;">
 
-    <h1>MONITORING SUHU & KELEMBABAN</h1>
+    <h1>MONITORING SUHU & KELEMBAPAN</h1>
     <h2>RUANG PERALATAN SIGNALLING & COMMUNICATION<br>LRT Sumsel DIVRE III Palembang</h2>
     <div id="current-time">--:--:--</div>
-    <div id="alert" class="alert">⚠️ Suhu atau kelembaban melebihi batas! Harap segera cek kondisi! ⚠️</div>
+    <div id="alert" class="alert">⚠️ Suhu atau kelembapan melebihi batas! Harap segera cek kondisi! ⚠️</div>
 
     <div id="stations"></div>
 
@@ -234,9 +234,9 @@
           <div class="station-title">${name}</div>
           <div class="widgets">
             <div class="widget" id="suhu${index}-1"><strong>Suhu Ruang Peralatan Persinyalan & Telekomunikasi:</strong><br>Loading...</div>
-            <div class="widget" id="kelembaban${index}-1"><strong>Kelembaban Peralatan Persinyalan & Telekomunikasi:</strong><br>Loading...</div>
+            <div class="widget" id="kelembapan${index}-1"><strong>Kelembapan Peralatan Persinyalan & Telekomunikasi:</strong><br>Loading...</div>
             <div class="widget" id="suhu${index}-2"><strong>Suhu Ruang MDP & UPS:</strong><br>Loading...</div>
-            <div class="widget" id="kelembaban${index}-2"><strong>Kelembaban Ruang MDP & UPS:</strong><br>Loading...</div>
+            <div class="widget" id="kelembapan${index}-2"><strong>Kelembapan Ruang MDP & UPS:</strong><br>Loading...</div>
           </div>
         </div>`;
     }
@@ -276,27 +276,27 @@
     const data2 = await fetchSensorData(i, 2);
 
     const suhu1 = data1 && data1.field1 ? parseFloat(data1.field1) : null;
-    const kelembaban1 = data1 && data1.field2 ? parseFloat(data1.field2) : null;
+    const kelembapan1 = data1 && data1.field2 ? parseFloat(data1.field2) : null;
 
     const suhu2 = data2 && data2.field1 ? parseFloat(data2.field1) : null;
-    const kelembaban2 = data2 && data2.field2 ? parseFloat(data2.field2) : null;
+    const kelembapan2 = data2 && data2.field2 ? parseFloat(data2.field2) : null;
 
     const suhu1El = document.getElementById(`suhu${i}-1`);
-    const kelembaban1El = document.getElementById(`kelembaban${i}-1`);
+    const kelembapan1El = document.getElementById(`kelembapan${i}-1`);
     const suhu2El = document.getElementById(`suhu${i}-2`);
-    const kelembaban2El = document.getElementById(`kelembaban${i}-2`);
+    const kelembapan2El = document.getElementById(`kelembapan${i}-2`);
 
-    // Update suhu dan kelembaban seperti biasa
+    // Update suhu dan kelembapan seperti biasa
     suhu1El.innerHTML = `<strong>Suhu Ruang Peralatan Persinyalan & Telekomunikasi:</strong><br>${suhu1 !== null ? suhu1.toFixed(1) + ' °C' : '--'}`;
-    kelembaban1El.innerHTML = `<strong>Kelembaban Peralatan Persinyalan & Telekomunikasi:</strong><br>${kelembaban1 !== null ? kelembaban1.toFixed(1) + '%' : '--'}`;
+    kelembapan1El.innerHTML = `<strong>Kelembapan Peralatan Persinyalan & Telekomunikasi:</strong><br>${kelembapan1 !== null ? kelembapan1.toFixed(1) + '%' : '--'}`;
     suhu2El.innerHTML = `<strong>Suhu Ruang MDP & UPS:</strong><br>${suhu2 !== null ? suhu2.toFixed(1) + ' °C' : '--'}`;
-    kelembaban2El.innerHTML = `<strong>Kelembaban Ruang MDP & UPS:</strong><br>${kelembaban2 !== null ? kelembaban2.toFixed(1) + '%' : '--'}`;
+    kelembapan2El.innerHTML = `<strong>Kelembapan Ruang MDP & UPS:</strong><br>${kelembapan2 !== null ? kelembapan2.toFixed(1) + '%' : '--'}`;
 
     // Update warna merah jika melebihi batas
     suhu1El.classList.toggle('red', suhu1 !== null && suhu1 > 24.0);
-    kelembaban1El.classList.toggle('red', kelembaban1 !== null && kelembaban1 > 90);
+    kelembapan1El.classList.toggle('red', kelembapan1 !== null && kelembapan1 > 90);
     suhu2El.classList.toggle('red', suhu2 !== null && suhu2 > 24.0);
-    kelembaban2El.classList.toggle('red', kelembaban2 !== null && kelembaban2 > 90);
+    kelembapan2El.classList.toggle('red', kelembapan2 !== null && kelembapan2 > 90);
 
     // --- TAMBAHKAN BAGIAN INI UNTUK WAKTU TERAKHIR ---
     // Buat elemen waktu terakhir di widget, kalau belum ada, buat baru
@@ -319,15 +319,15 @@
     }
 
     updateLastUpdated(suhu1El, data1 ? data1.created_at : null);
-    updateLastUpdated(kelembaban1El, data1 ? data1.created_at : null);
+    updateLastUpdated(kelembapan1El, data1 ? data1.created_at : null);
     updateLastUpdated(suhu2El, data2 ? data2.created_at : null);
-    updateLastUpdated(kelembaban2El, data2 ? data2.created_at : null);
+    updateLastUpdated(kelembapan2El, data2 ? data2.created_at : null);
     // --- SELESAI BAGIAN TAMBAHAN ---
 
     // Show alert jika ada batas terlampaui
     if (
-      (suhu1 !== null && suhu1 > 24.0) || (kelembaban1 !== null && kelembaban1 > 90) ||
-      (suhu2 !== null && suhu2 > 24.0) || (kelembaban2 !== null && kelembaban2 > 90)
+      (suhu1 !== null && suhu1 > 24.0) || (kelembapan1 !== null && kelembapan1 > 90) ||
+      (suhu2 !== null && suhu2 > 24.0) || (kelembapan2 !== null && kelembapan2 > 90)
     ) {
       alertShown = true;
     }
@@ -384,21 +384,21 @@
 
         const rows = filteredFeeds.map(f => {
           const suhu = parseFloat(f.field1);
-          const kelembaban = parseFloat(f.field2);
+          const kelembapan = parseFloat(f.field2);
           const waktu = new Date(f.created_at).toLocaleString("id-ID");
 
           const suhuDisplay = isNaN(suhu)
             ? "--"
-            : `<span style="color:${suhu > 24.9 ? 'red' : 'white'}">${suhu.toFixed(1)} °C</span>`;
+            : `<span style="color:${suhu > 24.0 ? 'red' : 'white'}">${suhu.toFixed(1)} °C</span>`;
 
-          const kelembabanDisplay = isNaN(kelembaban)
+          const kelembapanDisplay = isNaN(kelembapan)
             ? "--"
-            : `<span style="color:${kelembaban > 60 ? 'red' : 'white'}">${kelembaban.toFixed(1)}%</span>`;
+            : `<span style="color:${kelembapan > 90 ? 'red' : 'white'}">${kelembapan.toFixed(1)}%</span>`;
 
           return `<tr>
             <td>${waktu}</td>
             <td>${suhuDisplay}</td>
-            <td>${kelembabanDisplay}</td>
+            <td>${kelembapanDisplay}</td>
           </tr>`;
         });
 
@@ -408,7 +408,7 @@
               <tr>
                 <th>Waktu</th>
                 <th>Suhu</th>
-                <th>Kelembaban</th>
+                <th>Kelembapan</th>
               </tr>
             </thead>
             <tbody>${rows.join("")}</tbody>
