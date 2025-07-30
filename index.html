@@ -293,10 +293,10 @@
     kelembaban2El.innerHTML = `<strong>Kelembaban Ruang MDP & UPS:</strong><br>${kelembaban2 !== null ? kelembaban2.toFixed(1) + '%' : '--'}`;
 
     // Update warna merah jika melebihi batas
-    suhu1El.classList.toggle('red', suhu1 !== null && suhu1 > 24.9);
-    kelembaban1El.classList.toggle('red', kelembaban1 !== null && kelembaban1 > 60);
-    suhu2El.classList.toggle('red', suhu2 !== null && suhu2 > 24.9);
-    kelembaban2El.classList.toggle('red', kelembaban2 !== null && kelembaban2 > 60);
+    suhu1El.classList.toggle('red', suhu1 !== null && suhu1 > 24.0);
+    kelembaban1El.classList.toggle('red', kelembaban1 !== null && kelembaban1 > 90);
+    suhu2El.classList.toggle('red', suhu2 !== null && suhu2 > 24.0);
+    kelembaban2El.classList.toggle('red', kelembaban2 !== null && kelembaban2 > 90);
 
     // --- TAMBAHKAN BAGIAN INI UNTUK WAKTU TERAKHIR ---
     // Buat elemen waktu terakhir di widget, kalau belum ada, buat baru
@@ -326,8 +326,8 @@
 
     // Show alert jika ada batas terlampaui
     if (
-      (suhu1 !== null && suhu1 > 24.9) || (kelembaban1 !== null && kelembaban1 > 60) ||
-      (suhu2 !== null && suhu2 > 24.9) || (kelembaban2 !== null && kelembaban2 > 60)
+      (suhu1 !== null && suhu1 > 24.0) || (kelembaban1 !== null && kelembaban1 > 90) ||
+      (suhu2 !== null && suhu2 > 24.0) || (kelembaban2 !== null && kelembaban2 > 90)
     ) {
       alertShown = true;
     }
