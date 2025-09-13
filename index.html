@@ -294,9 +294,9 @@
 
     // Update warna merah jika melebihi batas
     suhu1El.classList.toggle('red', suhu1 !== null && suhu1 > 24.0);
-    kelembapan1El.classList.toggle('red', kelembapan1 !== null && kelembapan1 > 90);
+    kelembapan1El.classList.toggle('red', kelembapan1 !== null && kelembapan1 > 60);
     suhu2El.classList.toggle('red', suhu2 !== null && suhu2 > 24.0);
-    kelembapan2El.classList.toggle('red', kelembapan2 !== null && kelembapan2 > 90);
+    kelembapan2El.classList.toggle('red', kelembapan2 !== null && kelembapan2 > 60);
 
     // --- TAMBAHKAN BAGIAN INI UNTUK WAKTU TERAKHIR ---
     // Buat elemen waktu terakhir di widget, kalau belum ada, buat baru
@@ -326,8 +326,8 @@
 
     // Show alert jika ada batas terlampaui
     if (
-      (suhu1 !== null && suhu1 > 24.0) || (kelembapan1 !== null && kelembapan1 > 90) ||
-      (suhu2 !== null && suhu2 > 24.0) || (kelembapan2 !== null && kelembapan2 > 90)
+      (suhu1 !== null && suhu1 > 24.0) || (kelembapan1 !== null && kelembapan1 > 60) ||
+      (suhu2 !== null && suhu2 > 24.0) || (kelembapan2 !== null && kelembapan2 > 60)
     ) {
       alertShown = true;
     }
@@ -393,7 +393,7 @@
 
           const kelembapanDisplay = isNaN(kelembapan)
             ? "--"
-            : `<span style="color:${kelembapan > 90 ? 'red' : 'white'}">${kelembapan.toFixed(1)}%</span>`;
+            : `<span style="color:${kelembapan > 60 ? 'red' : 'white'}">${kelembapan.toFixed(1)}%</span>`;
 
           return `<tr>
             <td>${waktu}</td>
@@ -484,3 +484,4 @@ function logout() {
   </script>
 </body>
 </html>
+
